@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import { MessageSquarePlus, Settings, HelpCircle } from "lucide-react"
 import {
   Sidebar,
@@ -23,15 +22,7 @@ interface AppSidebarProps {
 export function AppSidebar({ onNewChat }: AppSidebarProps) {
   return (
     <Sidebar className="border-r border-sidebar-border">
-      <SidebarHeader className="p-4">
-        <Image
-          src="/halter-logo-white.svg"
-          alt="Halter"
-          width={100}
-          height={26}
-          className="h-6 w-auto"
-        />
-      </SidebarHeader>
+      <SidebarHeader className="p-4" />
 
       <SidebarContent>
         <SidebarGroup>

@@ -6,7 +6,7 @@ import { ChatContainer } from "@/components/chat/chat-container"
 
 export default function Page() {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <AppSidebar />
       <SidebarInset>
         <ChatContainer />
