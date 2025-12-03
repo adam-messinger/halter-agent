@@ -38,9 +38,10 @@ export function ChatMessages({ messages, isThinking, onSuggestionClick }: ChatMe
         {messages.map((message, index) => {
           const textContent = getMessageText(message)
           const isLast = index === messages.length - 1
+          const isLastAssistant = isLast && message.role === "assistant"
 
           // Show thinking indicator instead of empty assistant bubble
-          if (isLast && message.role === "assistant" && !textContent.trim() && isThinking) {
+          if (isLastAssistant && !textContent.trim() && isThinking) {
             return <ChatThinking key={message.id} />
           }
 
@@ -49,6 +50,8 @@ export function ChatMessages({ messages, isThinking, onSuggestionClick }: ChatMe
               key={message.id}
               role={message.role as "user" | "assistant"}
               content={textContent}
+              onSuggestionClick={onSuggestionClick}
+              showSuggestions={isLastAssistant && !isThinking}
             />
           )
         })}
