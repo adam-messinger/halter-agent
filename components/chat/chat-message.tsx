@@ -2,7 +2,7 @@
 
 import { Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard"
 import { MarkdownRenderer } from "@/components/markdown/markdown-renderer"
 import { cn } from "@/lib/utils"
@@ -32,33 +32,31 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
         )}
       >
         {/* Copy button - appears on hover */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "absolute -top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity",
-                  isUser
-                    ? "hover:bg-primary-foreground/10 text-primary-foreground"
-                    : "hover:bg-muted"
-                )}
-                onClick={() => copy(content)}
-              >
-                {copied ? (
-                  <Check className="h-3.5 w-3.5" />
-                ) : (
-                  <Copy className="h-3.5 w-3.5" />
-                )}
-                <span className="sr-only">Copy message</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              {copied ? "Copied!" : "Copy message"}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "absolute -top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity",
+                isUser
+                  ? "hover:bg-primary-foreground/10 text-primary-foreground"
+                  : "hover:bg-muted"
+              )}
+              onClick={() => copy(content)}
+            >
+              {copied ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
+              <span className="sr-only">Copy message</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            {copied ? "Copied!" : "Copy message"}
+          </TooltipContent>
+        </Tooltip>
 
         <div className={cn("prose prose-sm max-w-none", isUser && "prose-invert")}>
           <MarkdownRenderer content={content} isUserMessage={isUser} />

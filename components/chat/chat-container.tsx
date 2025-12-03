@@ -1,5 +1,6 @@
 "use client"
 
+import { useCallback } from "react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { ChatHeader } from "./chat-header"
@@ -7,29 +8,28 @@ import { ChatMessages } from "./chat-messages"
 import { ChatInput } from "./chat-input"
 import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts"
 
+// Stable transport instance - created once per module
+const chatTransport = new DefaultChatTransport({ api: "/api/chat" })
+
 export function ChatContainer() {
   const { messages, sendMessage, status, setMessages } = useChat({
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-    }),
+    transport: chatTransport,
   })
 
-  const handleSend = (text: string) => {
+  const handleSend = useCallback((text: string) => {
     sendMessage({ text })
-  }
+  }, [sendMessage])
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleSuggestionClick = useCallback((suggestion: string) => {
     sendMessage({ text: suggestion })
-  }
+  }, [sendMessage])
 
-  const handleNewChat = () => {
+  const handleNewChat = useCallback(() => {
     setMessages([])
-  }
+  }, [setMessages])
 
   // Keyboard shortcuts
-  useKeyboardShortcuts({
-    onNewChat: handleNewChat,
-  })
+  useKeyboardShortcuts(handleNewChat)
 
   // Show thinking state for both "submitted" (waiting) and "streaming" states
   const isThinking = status === "submitted" || status === "streaming"

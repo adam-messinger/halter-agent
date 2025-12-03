@@ -1,10 +1,11 @@
 import { getAgent } from "@/lib/agent";
-import { UIMessage } from "ai";
+import type { UIMessage } from "ai";
 
 export const maxDuration = 60;
 
-// Convert simple message format to UIMessage format
-function toUIMessages(messages: { role: string; content: string }[]): UIMessage[] {
+type SimpleMessage = { role: string; content: string };
+
+function toUIMessages(messages: SimpleMessage[]): UIMessage[] {
   return messages.map((msg, index) => ({
     id: `msg-${index}`,
     role: msg.role as "user" | "assistant",
@@ -12,39 +13,42 @@ function toUIMessages(messages: { role: string; content: string }[]): UIMessage[
   }));
 }
 
+function parseMessages(body: { messages?: UIMessage[] | SimpleMessage[] }): UIMessage[] {
+  const messages = body.messages;
+  if (!messages?.length) return [];
+
+  // Check if already in UIMessage format (has 'parts')
+  if ("parts" in messages[0]) {
+    return messages as UIMessage[];
+  }
+
+  // Convert simple format to UIMessage
+  if ("content" in messages[0]) {
+    return toUIMessages(messages as SimpleMessage[]);
+  }
+
+  return [];
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log("Received request body:", JSON.stringify(body, null, 2));
-
     const agent = await getAgent();
-    console.log("Agent retrieved successfully");
 
     if (!agent) {
-      console.error("Agent is null");
-      return new Response("Agent initialization failed", { status: 500 });
+      return Response.json({ error: "Agent initialization failed" }, { status: 500 });
     }
 
-    // Check if messages are already in UIMessage format (have 'parts') or simple format
-    let messages: UIMessage[];
-    if (body.messages?.[0]?.parts) {
-      // Already in UIMessage format
-      messages = body.messages;
-    } else if (body.messages?.[0]?.content) {
-      // Simple format, convert to UIMessage
-      messages = toUIMessages(body.messages);
-    } else {
-      messages = [];
-    }
+    const messages = parseMessages(body);
 
-    console.log("Calling agent.respond with", messages.length, "messages");
+    // Type assertion needed due to AI SDK's experimental API types
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return agent.respond({ messages: messages as any });
   } catch (error) {
-    console.error("Error in chat route:", error);
-    return new Response(
-      JSON.stringify({ error: String(error) }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+    console.error("Chat route error:", error);
+    return Response.json(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
     );
   }
 }

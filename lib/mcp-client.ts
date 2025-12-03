@@ -1,21 +1,24 @@
 import { experimental_createMCPClient as createMCPClient } from "@ai-sdk/mcp";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
-let mcpClient: Awaited<ReturnType<typeof createMCPClient>> | null = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let cachedTools: Record<string, any> | null = null;
+type MCPClient = Awaited<ReturnType<typeof createMCPClient>>;
+type MCPTools = Awaited<ReturnType<MCPClient["tools"]>>;
 
-export async function getMCPClient() {
+let mcpClient: MCPClient | null = null;
+let cachedTools: MCPTools | null = null;
+
+async function getMCPClient(): Promise<MCPClient> {
   if (!mcpClient) {
-    const transport = new StreamableHTTPClientTransport(
-      new URL(process.env.HALTER_MCP_URL!)
-    );
+    const url = process.env.HALTER_MCP_URL;
+    if (!url) throw new Error("HALTER_MCP_URL environment variable not set");
+
+    const transport = new StreamableHTTPClientTransport(new URL(url));
     mcpClient = await createMCPClient({ transport });
   }
   return mcpClient;
 }
 
-export async function getHalterTools() {
+export async function getHalterTools(): Promise<MCPTools> {
   if (!cachedTools) {
     const client = await getMCPClient();
     cachedTools = await client.tools();
@@ -23,22 +26,16 @@ export async function getHalterTools() {
   return cachedTools;
 }
 
-export async function getFarmSummary() {
-  // Get tools (uses cache if available)
+export async function getFarmSummary(): Promise<unknown> {
   const tools = await getHalterTools();
 
-  // Call the tool directly without going through Claude
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getFarmSummaryTool = tools.get_farm_summary as any;
-  if (!getFarmSummaryTool?.execute) {
-    console.error("get_farm_summary tool not found or has no execute method");
-    return null;
+  const tool = tools.get_farm_summary;
+  if (!tool?.execute) {
+    throw new Error("get_farm_summary tool not available");
   }
 
-  // Execute the tool directly
-  const result = await getFarmSummaryTool.execute({
-    include: ["herd", "pasture", "health", "mating", "hardware", "alerts"],
-  });
-
-  return result;
+  return tool.execute(
+    { include: ["herd", "pasture", "health", "mating", "hardware", "alerts"] },
+    { toolCallId: "farm-summary-init", messages: [] }
+  );
 }
