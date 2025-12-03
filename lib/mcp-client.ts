@@ -35,7 +35,7 @@ export async function getFarmSummary(): Promise<unknown> {
   }
 
   return tool.execute(
-    { include: ["herd", "pasture", "health", "mating", "hardware", "alerts"] },
+    { include: ["herd", "pasture", "health", "mating", "hardware"] },
     { toolCallId: "farm-summary-init", messages: [] }
   );
 }
