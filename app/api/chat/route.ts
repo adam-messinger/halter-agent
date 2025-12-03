@@ -5,6 +5,14 @@ export const maxDuration = 300;
 
 type SimpleMessage = { role: string; content: string };
 
+function isUIMessage(msg: unknown): msg is UIMessage {
+  return typeof msg === "object" && msg !== null && "parts" in msg;
+}
+
+function isSimpleMessage(msg: unknown): msg is SimpleMessage {
+  return typeof msg === "object" && msg !== null && "content" in msg && "role" in msg;
+}
+
 function toUIMessages(messages: SimpleMessage[]): UIMessage[] {
   return messages.map((msg, index) => ({
     id: `msg-${index}`,
@@ -13,17 +21,19 @@ function toUIMessages(messages: SimpleMessage[]): UIMessage[] {
   }));
 }
 
-function parseMessages(body: { messages?: UIMessage[] | SimpleMessage[] }): UIMessage[] {
-  const messages = body.messages;
-  if (!messages?.length) return [];
+function parseMessages(body: unknown): UIMessage[] {
+  if (typeof body !== "object" || body === null) return [];
 
-  // Check if already in UIMessage format (has 'parts')
-  if ("parts" in messages[0]) {
+  const { messages } = body as { messages?: unknown[] };
+  if (!Array.isArray(messages) || messages.length === 0) return [];
+
+  const first = messages[0];
+
+  if (isUIMessage(first)) {
     return messages as UIMessage[];
   }
 
-  // Convert simple format to UIMessage
-  if ("content" in messages[0]) {
+  if (isSimpleMessage(first)) {
     return toUIMessages(messages as SimpleMessage[]);
   }
 
@@ -32,7 +42,7 @@ function parseMessages(body: { messages?: UIMessage[] | SimpleMessage[] }): UIMe
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body: unknown = await request.json();
     const agent = await getAgent();
 
     if (!agent) {
@@ -41,7 +51,8 @@ export async function POST(request: Request) {
 
     const messages = parseMessages(body);
 
-    // Type assertion needed due to AI SDK's experimental API types
+    // The AI SDK's experimental Agent API has incomplete types for UIMessage.
+    // This assertion is safe because parseMessages() validates the structure.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return agent.respond({ messages: messages as any });
   } catch (error) {

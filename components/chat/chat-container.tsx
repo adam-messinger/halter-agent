@@ -1,12 +1,13 @@
 "use client"
 
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { ChatHeader } from "./chat-header"
 import { ChatMessages } from "./chat-messages"
 import { ChatInput } from "./chat-input"
 import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts"
+import { useChatActions } from "@/lib/chat-context"
 
 // Stable transport instance - created once per module
 const chatTransport = new DefaultChatTransport({ api: "/api/chat" })
@@ -15,6 +16,7 @@ export function ChatContainer() {
   const { messages, sendMessage, status, setMessages } = useChat({
     transport: chatTransport,
   })
+  const { setOnNewChat } = useChatActions()
 
   const handleSend = useCallback((text: string) => {
     sendMessage({ text })
@@ -27,6 +29,11 @@ export function ChatContainer() {
   const handleNewChat = useCallback(() => {
     setMessages([])
   }, [setMessages])
+
+  // Register the new chat handler with context so sidebar can use it
+  useEffect(() => {
+    setOnNewChat(handleNewChat)
+  }, [setOnNewChat, handleNewChat])
 
   // Keyboard shortcuts
   useKeyboardShortcuts(handleNewChat)

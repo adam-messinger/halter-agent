@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard"
 import { MarkdownRenderer } from "@/components/markdown/markdown-renderer"
+import { SuggestionButton } from "./suggestion-button"
 import { cn, parseSuggestions } from "@/lib/utils"
 
 interface ChatMessageProps {
@@ -74,13 +75,9 @@ export function ChatMessage({ role, content, onSuggestionClick, showSuggestions 
       {showSuggestions && suggestions.length > 0 && onSuggestionClick && (
         <div className="flex flex-wrap gap-2 pl-1 animate-in fade-in-0 slide-in-from-bottom-1 duration-300 delay-150">
           {suggestions.map((suggestion) => (
-            <button
-              key={suggestion}
-              onClick={() => onSuggestionClick(suggestion)}
-              className="px-3 py-1.5 text-sm rounded-full border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-colors"
-            >
+            <SuggestionButton key={suggestion} onClick={() => onSuggestionClick(suggestion)}>
               {suggestion}
-            </button>
+            </SuggestionButton>
           ))}
         </div>
       )}

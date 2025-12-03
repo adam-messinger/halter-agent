@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { HalterCowIcon } from "@/components/icons/halter-cow-icon"
+import { SuggestionButton } from "./suggestion-button"
 
 interface ChatEmptyStateProps {
   onSuggestionClick?: (suggestion: string) => void
@@ -38,13 +39,9 @@ export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
       {onSuggestionClick && (
         <div className="flex flex-wrap gap-2 justify-center max-w-lg">
           {suggestions.map((suggestion) => (
-            <button
-              key={suggestion}
-              onClick={() => onSuggestionClick(suggestion)}
-              className="px-4 py-2 text-sm rounded-full border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-colors"
-            >
+            <SuggestionButton key={suggestion} onClick={() => onSuggestionClick(suggestion)}>
               {suggestion}
-            </button>
+            </SuggestionButton>
           ))}
         </div>
       )}
