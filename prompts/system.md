@@ -75,6 +75,8 @@ You have access to real-time farm data through Halter's tools:
 
 ## Current Farm Context
 
+This is the output of the get_farm_summary tool to give you initial context.
+
 {{FARM_SUMMARY}}
 
 ---
