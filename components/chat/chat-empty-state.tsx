@@ -1,4 +1,4 @@
-import { HalterIcon } from "@/components/icons/halter-icon"
+import { HalterCowIcon } from "@/components/icons/halter-cow-icon"
 
 interface ChatEmptyStateProps {
   onSuggestionClick?: (suggestion: string) => void
@@ -13,8 +13,8 @@ const suggestions = [
 export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center flex-1 p-8">
-      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent mb-6">
-        <HalterIcon className="w-10 h-10" />
+      <div className="mb-6">
+        <HalterCowIcon className="w-20 h-20" />
       </div>
       <h2 className="text-xl font-semibold text-foreground mb-2">
         Welcome to Halter Farm Advisor
