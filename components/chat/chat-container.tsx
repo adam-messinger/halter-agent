@@ -31,12 +31,15 @@ export function ChatContainer() {
     onNewChat: handleNewChat,
   })
 
+  // Show thinking state for both "submitted" (waiting) and "streaming" states
+  const isThinking = status === "submitted" || status === "streaming"
+
   return (
     <div className="flex flex-col h-screen bg-background">
       <ChatHeader />
       <ChatMessages
         messages={messages}
-        isStreaming={status === "streaming"}
+        isThinking={isThinking}
         onSuggestionClick={handleSuggestionClick}
       />
       <ChatInput
