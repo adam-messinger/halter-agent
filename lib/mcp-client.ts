@@ -26,7 +26,7 @@ export async function getFarmSummary() {
 
   // Use generateText to invoke the get_farm_summary tool
   const result = await generateText({
-    model: anthropic("claude-sonnet-4-5-20250929"),
+    model: anthropic("claude-opus-4-5-20250120"),
     tools,
     toolChoice: { type: "tool", toolName: "get_farm_summary" },
     prompt: "Get the farm summary.",
