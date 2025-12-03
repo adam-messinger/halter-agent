@@ -15,12 +15,17 @@ let farmSummaryData: string = "Farm summary not available";
 function loadSystemPrompt(farmSummary: string): string {
   try {
     const promptPath = join(process.cwd(), "prompts", "system.md");
+    console.log("Loading system prompt from:", promptPath);
     let prompt = readFileSync(promptPath, "utf-8");
 
     // Replace the farm summary placeholder
+    const hasFarmSummary = prompt.includes("{{FARM_SUMMARY}}");
+    console.log("Prompt contains {{FARM_SUMMARY}} placeholder:", hasFarmSummary);
+    console.log("Farm summary length:", farmSummary.length, "characters");
+
     prompt = prompt.replace("{{FARM_SUMMARY}}", farmSummary);
 
-    console.log("System prompt loaded from prompts/system.md");
+    console.log("System prompt loaded successfully, total length:", prompt.length, "characters");
     return prompt;
   } catch (error) {
     console.error("Failed to load system prompt:", error);
