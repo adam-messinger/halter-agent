@@ -1,7 +1,17 @@
+"use client"
+
+import { useEffect } from "react"
 import { HalterCowIcon } from "@/components/icons/halter-cow-icon"
 
 interface ChatEmptyStateProps {
   onSuggestionClick?: (suggestion: string) => void
+}
+
+// Warm up the agent in the background when splash screen is shown
+function useAgentWarmup() {
+  useEffect(() => {
+    fetch("/api/warmup", { cache: "no-store" }).catch(() => {})
+  }, [])
 }
 
 const suggestions = [
@@ -11,6 +21,8 @@ const suggestions = [
 ]
 
 export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
+  useAgentWarmup()
+
   return (
     <div className="flex flex-col items-center justify-center flex-1 p-8">
       <div className="mb-6">
