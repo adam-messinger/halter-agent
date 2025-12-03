@@ -8,7 +8,8 @@ import { getHalterTools, getFarmSummary } from "./mcp-client";
 import { readFileSync } from "fs";
 import { join } from "path";
 
-let halterAgent: Agent<any, any> | null = null;
+type HalterAgent = Awaited<ReturnType<typeof createAgent>>;
+let halterAgent: HalterAgent | null = null;
 let farmSummaryData: string = "Farm summary not available";
 
 // Load the system prompt from the prompts directory
@@ -37,37 +38,42 @@ ${farmSummary}`;
   }
 }
 
+async function createAgent() {
+  console.log("Initializing Halter Agent...");
+
+  // Try to fetch farm summary, but don't fail if it doesn't work
+  try {
+    console.log("Fetching farm summary...");
+    const farmSummary = await getFarmSummary();
+    farmSummaryData = JSON.stringify(farmSummary, null, 2);
+    console.log("Farm summary fetched successfully");
+  } catch (error) {
+    console.error("Failed to fetch farm summary:", error);
+    farmSummaryData = "Farm summary could not be loaded";
+  }
+
+  // Get all Halter tools from MCP server
+  console.log("Fetching Halter tools...");
+  const halterTools = await getHalterTools();
+  console.log("Halter tools fetched:", Object.keys(halterTools));
+
+  // Load the system prompt from file
+  const systemPrompt = loadSystemPrompt(farmSummaryData);
+
+  const agent = new Agent({
+    model: anthropic("claude-sonnet-4-5-20250929"),
+    system: systemPrompt,
+    tools: halterTools,
+    stopWhen: stepCountIs(10),
+  });
+
+  console.log("Agent initialized successfully");
+  return agent;
+}
+
 export async function getAgent() {
   if (!halterAgent) {
-    console.log("Initializing Halter Agent...");
-
-    // Try to fetch farm summary, but don't fail if it doesn't work
-    try {
-      console.log("Fetching farm summary...");
-      const farmSummary = await getFarmSummary();
-      farmSummaryData = JSON.stringify(farmSummary, null, 2);
-      console.log("Farm summary fetched successfully");
-    } catch (error) {
-      console.error("Failed to fetch farm summary:", error);
-      farmSummaryData = "Farm summary could not be loaded";
-    }
-
-    // Get all Halter tools from MCP server
-    console.log("Fetching Halter tools...");
-    const halterTools = await getHalterTools();
-    console.log("Halter tools fetched:", Object.keys(halterTools));
-
-    // Load the system prompt from file
-    const systemPrompt = loadSystemPrompt(farmSummaryData);
-
-    halterAgent = new Agent({
-      model: anthropic("claude-opus-4-5-20251101"),
-      system: systemPrompt,
-      tools: halterTools,
-      stopWhen: stepCountIs(10),
-    });
-
-    console.log("Agent initialized successfully");
+    halterAgent = await createAgent();
   }
   return halterAgent;
 }

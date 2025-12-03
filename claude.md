@@ -5,7 +5,7 @@ AI-powered dairy farming advisor built for Halter, a New Zealand agri-tech compa
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router)
-- **AI**: Vercel AI SDK with Anthropic Claude (claude-opus-4-5-20251101)
+- **AI**: Vercel AI SDK with Anthropic Claude (claude-sonnet-4-5-20250929)
 - **MCP**: Model Context Protocol integration for Halter farm data tools
 - **UI**: React 19, TailwindCSS 4
 - **Language**: TypeScript (strict mode)
