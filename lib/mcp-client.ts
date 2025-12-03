@@ -1,9 +1,9 @@
 import { experimental_createMCPClient as createMCPClient } from "@ai-sdk/mcp";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import { generateText } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
 
 let mcpClient: Awaited<ReturnType<typeof createMCPClient>> | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let cachedTools: Record<string, any> | null = null;
 
 export async function getMCPClient() {
   if (!mcpClient) {
@@ -16,26 +16,29 @@ export async function getMCPClient() {
 }
 
 export async function getHalterTools() {
-  const client = await getMCPClient();
-  return client.tools();
+  if (!cachedTools) {
+    const client = await getMCPClient();
+    cachedTools = await client.tools();
+  }
+  return cachedTools;
 }
 
 export async function getFarmSummary() {
-  const client = await getMCPClient();
-  const tools = await client.tools();
+  // Get tools (uses cache if available)
+  const tools = await getHalterTools();
 
-  // Use generateText to invoke the get_farm_summary tool
-  const result = await generateText({
-    model: anthropic("claude-sonnet-4-5-20250929"),
-    tools,
-    toolChoice: { type: "tool", toolName: "get_farm_summary" },
-    prompt: "Get the farm summary.",
+  // Call the tool directly without going through Claude
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getFarmSummaryTool = tools.get_farm_summary as any;
+  if (!getFarmSummaryTool?.execute) {
+    console.error("get_farm_summary tool not found or has no execute method");
+    return null;
+  }
+
+  // Execute the tool directly
+  const result = await getFarmSummaryTool.execute({
+    include: ["herd", "pasture", "health", "mating", "hardware", "alerts"],
   });
 
-  // Extract the tool result from the response
-  const toolResults = result.steps[0]?.toolResults;
-  if (toolResults && toolResults.length > 0) {
-    return toolResults[0];
-  }
-  return null;
+  return result;
 }
