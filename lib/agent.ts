@@ -5,9 +5,32 @@ import {
 } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { getHalterTools, getFarmSummary } from "./mcp-client";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 let halterAgent: Agent<any, any> | null = null;
 let farmSummaryData: string = "Farm summary not available";
+
+// Load the system prompt from the prompts directory
+function loadSystemPrompt(farmSummary: string): string {
+  try {
+    const promptPath = join(process.cwd(), "prompts", "system.md");
+    let prompt = readFileSync(promptPath, "utf-8");
+
+    // Replace the farm summary placeholder
+    prompt = prompt.replace("{{FARM_SUMMARY}}", farmSummary);
+
+    console.log("System prompt loaded from prompts/system.md");
+    return prompt;
+  } catch (error) {
+    console.error("Failed to load system prompt:", error);
+    // Fallback to a basic prompt if file can't be loaded
+    return `You are a dairy farming advisor for Halter. Help farmers with their herd management.
+
+## Current Farm Summary
+${farmSummary}`;
+  }
+}
 
 export async function getAgent() {
   if (!halterAgent) {
@@ -29,27 +52,12 @@ export async function getAgent() {
     const halterTools = await getHalterTools();
     console.log("Halter tools fetched:", Object.keys(halterTools));
 
+    // Load the system prompt from file
+    const systemPrompt = loadSystemPrompt(farmSummaryData);
+
     halterAgent = new Agent({
       model: anthropic("claude-sonnet-4-5-20250929"),
-      system: `You are an expert dairy farming advisor for Halter, a smart collar technology company that helps farmers manage their herds.
-
-Your role is to provide practical, actionable advice on:
-- Herd health and welfare
-- Grazing management and pasture optimization
-- Milk production optimization
-- Animal behavior insights
-- Farm operational efficiency
-
-You have access to real-time farm data through Halter's tools. Use them to provide data-driven recommendations.
-
-## Current Farm Summary
-${farmSummaryData}
-
-When responding:
-- Be concise and practical
-- Reference specific data when available
-- Prioritize animal welfare
-- Consider New Zealand/Australia dairy farming practices`,
+      system: systemPrompt,
       tools: halterTools,
       stopWhen: stepCountIs(10),
     });
