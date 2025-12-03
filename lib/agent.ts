@@ -52,6 +52,7 @@ async function createAgent() {
     system: systemPrompt,
     tools: halterTools,
     stopWhen: stepCountIs(10),
+    maxOutputTokens: 8192,
   });
 }
 

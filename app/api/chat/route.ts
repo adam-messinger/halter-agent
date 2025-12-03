@@ -1,7 +1,7 @@
 import { getAgent } from "@/lib/agent";
 import type { UIMessage } from "ai";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 type SimpleMessage = { role: string; content: string };
 
