@@ -38,7 +38,8 @@ export async function POST(request: Request) {
     }
 
     console.log("Calling agent.respond with", messages.length, "messages");
-    return agent.respond({ messages });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return agent.respond({ messages: messages as any });
   } catch (error) {
     console.error("Error in chat route:", error);
     return new Response(
