@@ -1,10 +1,10 @@
 "use client"
 
+import Image from "next/image"
 import { PanelLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
-import { HalterIcon } from "@/components/icons/halter-icon"
 
 export function ChatHeader() {
   const { toggleSidebar } = useSidebar()
@@ -21,12 +21,14 @@ export function ChatHeader() {
           <PanelLeft className="h-5 w-5" />
           <span className="sr-only">Toggle sidebar</span>
         </Button>
-        <div className="flex items-center gap-2">
-          <HalterIcon className="w-7 h-7 text-primary-foreground [&_.fill-accent]:fill-accent" />
-          <h1 className="text-lg font-semibold text-primary-foreground">
-            Halter Farm Advisor
-          </h1>
-        </div>
+        <Image
+          src="/halter-logo-white.svg"
+          alt="Halter"
+          width={120}
+          height={32}
+          className="h-7 w-auto"
+          priority
+        />
       </div>
 
       <div className="flex items-center gap-2">

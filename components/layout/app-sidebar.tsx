@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { MessageSquarePlus, Settings, HelpCircle } from "lucide-react"
 import {
   Sidebar,
@@ -13,7 +14,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { HalterIcon } from "@/components/icons/halter-icon"
 import { Button } from "@/components/ui/button"
 
 interface AppSidebarProps {
@@ -24,10 +24,13 @@ export function AppSidebar({ onNewChat }: AppSidebarProps) {
   return (
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2">
-          <HalterIcon className="w-8 h-8" />
-          <span className="font-semibold text-sidebar-foreground">Halter</span>
-        </div>
+        <Image
+          src="/halter-logo-white.svg"
+          alt="Halter"
+          width={100}
+          height={26}
+          className="h-6 w-auto"
+        />
       </SidebarHeader>
 
       <SidebarContent>
