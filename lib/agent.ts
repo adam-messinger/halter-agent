@@ -61,7 +61,7 @@ export async function getAgent() {
     const systemPrompt = loadSystemPrompt(farmSummaryData);
 
     halterAgent = new Agent({
-      model: anthropic("claude-opus-4-5-20250120"),
+      model: anthropic("claude-opus-4-5-20251101"),
       system: systemPrompt,
       tools: halterTools,
       stopWhen: stepCountIs(10),
